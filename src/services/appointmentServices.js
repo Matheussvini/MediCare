@@ -3,8 +3,6 @@ import appointmentRepositories from "../repositories/appointmentRepositories.js"
 import moment from "moment";
 
 async function create({doctor_id, fu, city, district, date, start_time, end_time}) {
-  const { rowCount } = await appointmentRepositories.findByDoctorId(doctor_id);
-  if (!rowCount) throw errors.doctorNotFound(doctor_id);
 
   const now = moment();
   const appointmentDate = moment(date, "YYYY-MM-DD");

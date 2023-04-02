@@ -43,7 +43,12 @@ async function signin({ email, password }) {
   return user;
 }
 
+async function findDoctorByUserId(user_id) {
+  return await userRepositories.findDoctorByUserId(user_id);
+}
+
 export default {
   signup,
   signin,
+  findDoctorByUserId,
 };

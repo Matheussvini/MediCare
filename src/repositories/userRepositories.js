@@ -27,6 +27,15 @@ async function findByCpf(cpf) {
   );
 }
 
+async function findUserById(user_id) {
+  return await connectionDB.query(
+    `
+        SELECT * FROM users WHERE id = $1
+    `,
+    [user_id]
+  );
+}
+
 async function signup({ name, email, password, type }) {
   await connectionDB.query(
     `
@@ -57,6 +66,15 @@ async function patient({ user_id, cpf }) {
   );
 }
 
+async function findDoctorByUserId(user_id) {
+  return await connectionDB.query(
+    `
+        SELECT * FROM doctors WHERE user_id = $1
+    `,
+    [user_id]
+  );
+}
+
 export default {
   signup,
   findByEmail,
@@ -64,5 +82,6 @@ export default {
   patient,
   findByCrm,
   findByCpf,
-
+  findUserById,
+  findDoctorByUserId
 };
