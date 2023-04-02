@@ -5,7 +5,7 @@ export function validateSchema(schema) {
     const { error } = schema.validate(req.body);
     if (error) {
       const errors = error.details.map((detail) => detail.message);
-      throw err.conflictError(errors);
+      throw err.unprocessableEntityError(errors);
     }
     next();
   };

@@ -1,8 +1,7 @@
-function duplicatedEmailError(email) {
+function duplicatedError(type, content) {
   return {
-    name: "DuplicatedEmailError",
-    message: `The email ${email} is already registered`,
-    email,
+    name: "DuplicatedError",
+    message: `The ${type} ${content} is already registered`,
   };
 }
 
@@ -13,8 +12,47 @@ function conflictError(message) {
     };
 }
 
+function unprocessableEntityError(message) {
+    return {
+        name: "UnprocessableEntityError",
+        message,
+    };
+}
+
+function invalidCredentialsError() {
+    return {
+        name: "InvalidCredentialsError",
+        message: "Invalid credentials",
+    };
+}
+
+function notFoundError(message) {
+    return {
+        name: "NotFoundError",
+        message,
+    };
+}
+
+function unauthorizedError(message) {
+    return {
+        name: "UnauthorizedError",
+        message,
+    };
+}
+
+function validationError(message) {
+    return {
+        name: "ValidationError",
+        message,
+    };
+}
 
 export default {
-    duplicatedEmailError,
+    duplicatedError,
     conflictError,
+    unprocessableEntityError,
+    invalidCredentialsError,
+    notFoundError,
+    unauthorizedError,
+    validationError,
 }
