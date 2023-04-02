@@ -9,6 +9,24 @@ async function findByEmail(email) {
   );
 }
 
+async function findByCrm(crm) {
+  return await connectionDB.query(
+    `
+        SELECT * FROM doctors WHERE crm = $1
+    `,
+    [crm]
+  );
+}
+
+async function findByCpf(cpf) {
+  return await connectionDB.query(
+    `
+        SELECT * FROM patients WHERE cpf = $1
+    `,
+    [cpf]
+  );
+}
+
 async function signup({ name, email, password, type }) {
   await connectionDB.query(
     `
@@ -19,7 +37,32 @@ async function signup({ name, email, password, type }) {
   );
 }
 
-export default {
-    signup,
-    findByEmail
+async function doctor({ user_id, speciality, crm }) {
+  await connectionDB.query(
+    `
+            INSERT INTO doctors (user_id, speciality, crm)
+            VALUES ($1, $2, $3)
+        `,
+    [user_id, speciality.toLowerCase(), crm]
+  );
 }
+
+async function patient({ user_id, cpf }) {
+  await connectionDB.query(
+    `
+            INSERT INTO patients (user_id, cpf)
+            VALUES ($1, $2)
+        `,
+    [user_id, cpf]
+  );
+}
+
+export default {
+  signup,
+  findByEmail,
+  doctor,
+  patient,
+  findByCrm,
+  findByCpf,
+
+};
