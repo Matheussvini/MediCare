@@ -26,15 +26,6 @@ async function create({
   );
 }
 
-async function findByDoctorId(doctor_id) {
-  return await connectionDB.query(
-    `
-        SELECT * FROM doctors WHERE id = $1
-    `,
-    [doctor_id]
-  );
-}
-
 async function findByDoctorIdDateAndTime({
   doctor_id,
   date,
@@ -64,14 +55,14 @@ async function findByScheduleId(id) {
   );
 }
 
-async function confirm({ id, status }) {
+async function confirm({ schedule_id, status }) {
   await connectionDB.query(
     `
         UPDATE schedule_appointments
         SET status = $2
         WHERE id = $1
     `,
-    [id, status]
+    [schedule_id, status]
   );
 }
 
@@ -141,11 +132,51 @@ async function findAvailable({
   return rows;
 }
 
+async function findByAvailableIdAndTime({
+  available_id,
+  time,
+}) {
+  return await connectionDB.query(
+    `
+        SELECT *
+        FROM available_appointments
+        WHERE id = $1
+        AND ($2 BETWEEN start_time AND end_time)
+    `,
+    [available_id, time]
+  );
+}
+
+async function findScheduleByTime({ available_id, time }) {
+  return await connectionDB.query(
+    `
+        SELECT *
+        FROM schedule_appointments
+        WHERE available_id = $1
+        AND time = $2
+    `,
+    [available_id, time]
+  );
+}
+
+async function schedule({ available_id, doctor_id, patient_id, time }) {
+
+  await connectionDB.query(
+    `
+        INSERT INTO schedule_appointments (available_id, doctor_id, patient_id, time)
+        VALUES ($1, $2, $3, $4)
+    `,
+    [available_id, doctor_id, patient_id, time]
+  );
+}
+
 export default {
   create,
-  findByDoctorId,
   findByDoctorIdDateAndTime,
   findByScheduleId,
   confirm,
   findAvailable,
+  findByAvailableIdAndTime,
+  findScheduleByTime,
+  schedule,
 };

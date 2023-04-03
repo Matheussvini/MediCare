@@ -26,4 +26,13 @@ appointmentRoutes.get(
     validateSchema(appointmentSchema.available),
     appointmentControllers.available
 );
+
+appointmentRoutes.post(
+    "/schedule",
+    authMiddleware.authValidation,
+    validateSchema(appointmentSchema.schedule),
+    appointmentControllers.schedule
+);
+
+
 export default appointmentRoutes;

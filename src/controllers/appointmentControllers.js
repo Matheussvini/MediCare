@@ -7,13 +7,16 @@ async function create(req, res, next) {
   const { user } = res.locals;
   try {
     if (user.type !== "doctor") {
-      throw errors.invalidCredentialsError(
-        "Only doctor users can create appointments"
-      );
+      throw errors.invalidCredentialsError({
+        message: "Only doctor users can create appointments",
+      });
     }
 
     const doctor = await userRepositories.findDoctorByUserId(user.id);
-    if (!doctor) throw errors.notFoundError({message: `Doctor with user id ${user.id} not found`});
+    if (!doctor)
+      throw errors.notFoundError({
+        message: `Doctor with user id ${user.id} not found`,
+      });
 
     await appointmentServices.create({
       doctor_id: doctor.id,
@@ -32,18 +35,18 @@ async function create(req, res, next) {
   }
 }
 
-async function confirm (req, res, next) {
-  const { id } = parseInt(req.params);
+async function confirm(req, res, next) {
+  const schedule_id = parseInt(req.params.id);
   const { user } = res.locals;
   const { status } = req.body;
   try {
     if (user.type !== "doctor") {
-      throw errors.invalidCredentialsError(
-        "Only doctor users can confirm appointments"
-      );
+      throw errors.invalidCredentialsError({
+        message: "Only doctor users can confirm appointments",
+      });
     }
 
-    await appointmentServices.confirm({id, user, status});
+    await appointmentServices.confirm({ schedule_id, user, status });
 
     return res
       .status(200)
@@ -53,21 +56,46 @@ async function confirm (req, res, next) {
   }
 }
 
-async function available (req, res, next) {
+async function available(req, res, next) {
   const { doctor_name, date, fu, city, district, speciality } = req.query;
   const { user } = res.locals;
   try {
     if (user.type !== "patient") {
-      throw errors.invalidCredentialsError(
-        "Only patient users can confirm appointments"
-      );
+      throw errors.invalidCredentialsError({
+        message: "Only patient users can confirm appointments",
+      });
     }
 
-    const availables = await appointmentServices.available({doctor_name, date, fu, city, district, speciality});
+    const availables = await appointmentServices.available({
+      doctor_name,
+      date,
+      fu,
+      city,
+      district,
+      speciality,
+    });
+
+    return res.status(200).send({ availables });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function schedule(req, res, next) {
+  const { user } = res.locals;
+  const { available_id, patient_id, time } = req.body;
+  try {
+    if (user.type !== "patient") {
+      throw errors.invalidCredentialsError({
+        message: "Only patient users can confirm appointments",
+      });
+    }
+
+    await appointmentServices.schedule({ available_id, patient_id, time });
 
     return res
-      .status(200)
-      .send({ availables });
+      .status(201)
+      .send({ message: "Successfully created appointment" });
   } catch (err) {
     next(err);
   }
@@ -76,5 +104,6 @@ async function available (req, res, next) {
 export default {
   create,
   confirm,
-  available
+  available,
+  schedule,
 };

@@ -68,20 +68,34 @@ async function create({
   });
 }
 
-async function confirm({ id, user, status }) {
-  const schedule = await appointmentRepositories.findByScheduleId(id);
+async function confirm({ schedule_id, user, status }) {
+  const {rows: [schedule]} = await appointmentRepositories.findByScheduleId(schedule_id);
   if (!schedule) {
-    throw errors.notFoundError({ message: `Schedule with id ${id} not found` });
+    throw errors.notFoundError({
+      message: `Schedule with id ${schedule_id} not found`,
+    });
   }
 
-  const doctor = await userRepositories.findDoctorByUserId(user.id);
+  const {rows: [doctor ]} = await userRepositories.findDoctorByUserId(user.id);
+  if (doctor.id !== schedule.doctor_id) {
+    throw errors.invalidCredentialsError({
+      message:
+        `This appointment does not belong to doctor with id ${doctor.id}`,
+    });
+  }
   if (!doctor) {
     throw errors.notFoundError({
       message: `Doctor with user id ${user.id} not found`,
     });
   }
 
-  await appointmentRepositories.confirm({ id, status });
+  if (schedule.status !== "pending") {
+    throw errors.conflictError({
+      message: `This appointment is already ${schedule.status}`,
+    });
+  }
+
+  await appointmentRepositories.confirm({ schedule_id, status });
 }
 
 async function available({
@@ -111,13 +125,13 @@ async function available({
 
   const result = search.map((available) => {
     const { start_time, end_time } = available;
-    const startTimeMoment = moment(start_time, 'HH:mm:ss');
-    const endTimeMoment = moment(end_time, 'HH:mm:ss');
+    const startTimeMoment = moment(start_time, "HH:mm:ss");
+    const endTimeMoment = moment(end_time, "HH:mm:ss");
     const times = [];
 
     while (startTimeMoment.isBefore(endTimeMoment)) {
-      times.push(startTimeMoment.format('HH:mm'));
-      startTimeMoment.add(20, 'minutes');
+      times.push(startTimeMoment.format("HH:mm"));
+      startTimeMoment.add(20, "minutes");
     }
 
     return {
@@ -127,11 +141,42 @@ async function available({
   });
 
   return result;
+}
 
+async function schedule({ available_id, patient_id, time }) {
+  const {
+    rows: [available],
+    rowCount,
+  } = await appointmentRepositories.findByAvailableIdAndTime({
+    available_id,
+    time,
+  });
+  if (!rowCount) {
+    throw errors.notFoundError({
+      message: `Available with id ${available_id} not found or the time ${time} is not between start_time and end_time`,
+    });
+  }
+  const search = await appointmentRepositories.findScheduleByTime({
+    available_id,
+    time,
+  });
+  if (search.rowCount) {
+    throw errors.conflictError({
+      message: `Appointment already exists in this time ${time} for this doctor`,
+    });
+  }
+
+  await appointmentRepositories.schedule({
+    available_id,
+    doctor_id: available.doctor_id,
+    patient_id,
+    time,
+  });
 }
 
 export default {
   create,
   confirm,
   available,
+  schedule,
 };

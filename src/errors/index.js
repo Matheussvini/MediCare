@@ -19,10 +19,10 @@ function unprocessableEntityError(message) {
   };
 }
 
-function invalidCredentialsError() {
+function invalidCredentialsError(message) {
   return {
     name: "InvalidCredentialsError",
-    message: "Invalid credentials",
+    message,
   };
 }
 
