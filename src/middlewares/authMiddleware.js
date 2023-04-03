@@ -8,7 +8,7 @@ async function authValidation(req, res, next) {
     const token = authorization?.replace("Bearer ", "");
     const secretKey = process.env.JWT_SECRET;
 
-    if (!token) throw errors.unauthorizedError({ message: "Token not found" });
+    if (!token) throw errors.unauthorizedError("Token not found");
 
     const data = jwt.verify(token, secretKey);
 

@@ -26,7 +26,7 @@ async function create({
     !appointmentStart.isValid() ||
     !appointmentEnd.isValid()
   ) {
-    throw errors.conflictError({ message: "Invalid date or time" });
+    throw errors.conflictError("Invalid date or time");
   }
 
   if (
@@ -34,15 +34,11 @@ async function create({
     appointmentStart.isBefore(now) ||
     appointmentEnd.isBefore(now)
   ) {
-    throw errors.conflictError({
-      message: "Appointment date must be in the future",
-    });
+    throw errors.conflictError("Appointment date must be in the future");
   }
 
   if (appointmentEnd.isBefore(appointmentStart)) {
-    throw errors.conflictError({
-      message: "Appointment end time must be after start time",
-    });
+    throw errors.conflictError("Appointment end time must be after start time");
   }
 
   const { rows } = await appointmentRepositories.findByDoctorIdDateAndTime({
@@ -112,7 +108,7 @@ async function available({
   if (date) {
     const appointmentDate = moment(date, "YYYY-MM-DD");
     if (!appointmentDate.isValid()) {
-      throw errors.conflictError({ message: "Invalid date" });
+      throw errors.conflictError("Invalid date");
     }
   }
 
