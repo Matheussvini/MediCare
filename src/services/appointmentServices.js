@@ -51,10 +51,10 @@ async function create({
     end_time,
   });
   if (rows.length) {
-    throw errors.conflictError({
-      message:
+    throw errors.conflictError(
+      
         "Appointment already exists in this time interval for this doctor",
-    });
+    );
   }
 
   await appointmentRepositories.create({
@@ -164,7 +164,7 @@ async function available({
   return result;
 }
 
-async function schedule({ available_id, patient_id, time }) {
+async function schedule({ available_id, time, user }) {
   const {
     rows: [available],
     rowCount,
@@ -177,20 +177,30 @@ async function schedule({ available_id, patient_id, time }) {
       message: `Available with id ${available_id} not found or the time ${time} is not between start_time and end_time`,
     });
   }
+  const {
+    rows: [patient],
+  } = await userRepositories.findPatientByUserId(user.id);
+
   const search = await appointmentRepositories.findScheduleByTime({
     available_id,
     time,
   });
   if (search.rowCount) {
-    throw errors.conflictError({
-      message: `Appointment already exists in this time ${time} for this doctor`,
-    });
+    throw errors.conflictError(
+      `Appointment already exists in this time ${time} for this doctor`,
+    );
+  }
+
+  const { rows: schedules } = await appointmentRepositories.findSchedulesByAvailableIdAndPatientId( { available_id, patient_id: patient.id } );
+  if (schedules.length > 1) {
+    throw errors.conflictError(`Pacient with id ${patient.id} already have an appointment with this doctor on this day`,
+    );
   }
 
   await appointmentRepositories.schedule({
     available_id,
     doctor_id: available.doctor_id,
-    patient_id,
+    patient_id: patient.id,
     time,
   });
 }

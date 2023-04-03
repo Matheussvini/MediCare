@@ -181,6 +181,18 @@ async function findSchedulesByAvailableId(available_id) {
   );
 }
 
+async function findSchedulesByAvailableIdAndPatientId({available_id, patient_id}) {
+  return await connectionDB.query(
+    `
+        SELECT *
+        FROM schedule_appointments
+        WHERE available_id = $1
+        AND patient_id = $2
+    `,
+    [available_id, patient_id]
+  );
+}
+
 export default {
   create,
   findByDoctorIdDateAndTime,
@@ -191,4 +203,5 @@ export default {
   findScheduleByTime,
   schedule,
   findSchedulesByAvailableId,
+  findSchedulesByAvailableIdAndPatientId,
 };
