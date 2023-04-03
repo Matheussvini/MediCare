@@ -69,18 +69,21 @@ async function create({
 }
 
 async function confirm({ schedule_id, user, status }) {
-  const {rows: [schedule]} = await appointmentRepositories.findByScheduleId(schedule_id);
+  const {
+    rows: [schedule],
+  } = await appointmentRepositories.findByScheduleId(schedule_id);
   if (!schedule) {
     throw errors.notFoundError({
       message: `Schedule with id ${schedule_id} not found`,
     });
   }
 
-  const {rows: [doctor ]} = await userRepositories.findDoctorByUserId(user.id);
+  const {
+    rows: [doctor],
+  } = await userRepositories.findDoctorByUserId(user.id);
   if (doctor.id !== schedule.doctor_id) {
     throw errors.invalidCredentialsError({
-      message:
-        `This appointment does not belong to doctor with id ${doctor.id}`,
+      message: `This appointment does not belong to doctor with id ${doctor.id}`,
     });
   }
   if (!doctor) {
@@ -123,7 +126,7 @@ async function available({
     speciality,
   });
 
-  const result = search.map((available) => {
+  const arrAvailables = search.map((available) => {
     const { start_time, end_time } = available;
     const startTimeMoment = moment(start_time, "HH:mm:ss");
     const endTimeMoment = moment(end_time, "HH:mm:ss");
@@ -139,6 +142,24 @@ async function available({
       times,
     };
   });
+
+  const result = [];
+
+  for (const appointment of arrAvailables) {
+    const { rows: schedules } =
+      await appointmentRepositories.findSchedulesByAvailableId(appointment.id);
+
+    appointment.times = appointment.times.filter((time, i) => {
+      const isScheduled = schedules?.some(
+        (schedule) => schedule.time.slice(0, -3) === time
+      );
+      return !isScheduled;
+    });
+
+    if (appointment.times.length > 0) {
+      result.push(appointment);
+    }
+  }
 
   return result;
 }

@@ -79,14 +79,14 @@ async function findAvailable({
         SELECT
           a.id,
           a.doctor_id,
+          u.name AS doctor_name,
           a.fu,
           a.city,
           a.district,
           a.date,
           a.start_time,
           a.end_time,
-          d.speciality,
-          u.name
+          d.speciality
         FROM available_appointments a
         JOIN doctors d ON d.id = a.doctor_id
         JOIN users u ON u.id = d.user_id
@@ -170,6 +170,17 @@ async function schedule({ available_id, doctor_id, patient_id, time }) {
   );
 }
 
+async function findSchedulesByAvailableId(available_id) {
+  return await connectionDB.query(
+    `
+        SELECT *
+        FROM schedule_appointments
+        WHERE available_id = $1
+    `,
+    [available_id]
+  );
+}
+
 export default {
   create,
   findByDoctorIdDateAndTime,
@@ -179,4 +190,5 @@ export default {
   findByAvailableIdAndTime,
   findScheduleByTime,
   schedule,
+  findSchedulesByAvailableId,
 };
