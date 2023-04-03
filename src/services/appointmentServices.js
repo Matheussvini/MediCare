@@ -100,7 +100,7 @@ async function available({
     }
   }
 
-  const result = await appointmentRepositories.findAvailable({
+  const search = await appointmentRepositories.findAvailable({
     doctor_name,
     date,
     fu,
@@ -108,7 +108,26 @@ async function available({
     district,
     speciality,
   });
+
+  const result = search.map((available) => {
+    const { start_time, end_time } = available;
+    const startTimeMoment = moment(start_time, 'HH:mm:ss');
+    const endTimeMoment = moment(end_time, 'HH:mm:ss');
+    const times = [];
+
+    while (startTimeMoment.isBefore(endTimeMoment)) {
+      times.push(startTimeMoment.format('HH:mm'));
+      startTimeMoment.add(20, 'minutes');
+    }
+
+    return {
+      ...available,
+      times,
+    };
+  });
+
   return result;
+
 }
 
 export default {
