@@ -1,5 +1,6 @@
 import errors from "../errors/index.js";
 import userRepositories from "../repositories/userRepositories.js";
+import jwt from "jsonwebtoken";
 
 async function authValidation(req, res, next) {
   try {
