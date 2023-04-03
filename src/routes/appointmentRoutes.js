@@ -20,4 +20,10 @@ appointmentRoutes.post(
   appointmentControllers.confirm
 );
 
+appointmentRoutes.get(
+    "/available",
+    authMiddleware.authValidation,
+    validateSchema(appointmentSchema.available),
+    appointmentControllers.available
+);
 export default appointmentRoutes;

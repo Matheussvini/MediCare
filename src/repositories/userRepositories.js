@@ -75,6 +75,28 @@ async function findDoctorByUserId(user_id) {
   );
 }
 
+async function findPatientByUserId(user_id) {
+  return await connectionDB.query(
+    `
+        SELECT * FROM patients WHERE user_id = $1
+    `,
+    [user_id]
+  );
+}
+
+async function findDoctorIdsByDoctorName(doctor_name) {
+  return await connectionDB.query(
+    `
+        SELECT 
+            d.id AS doctor_id
+        FROM users u
+        JOIN doctors d ON u.id = d.user_id
+        WHERE LOWER(u.name) LIKE '%' || LOWER($1) || '%'
+    `,
+    [doctor_name.toLowerCase()]
+  );
+}
+
 export default {
   signup,
   findByEmail,
@@ -83,5 +105,7 @@ export default {
   findByCrm,
   findByCpf,
   findUserById,
-  findDoctorByUserId
+  findDoctorByUserId,
+  findPatientByUserId,
+  findDoctorIdsByDoctorName
 };

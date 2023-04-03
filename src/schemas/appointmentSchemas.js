@@ -13,7 +13,16 @@ const confirm = joi.object({
     status: joi.string().valid("confirmed", "canceled").required(),
 });
 
+const available = joi.object({
+    doctor_name: joi.string(),
+    date: joi.string(),
+    fu: joi.string().min(2).max(2),
+    city: joi.string(),
+    district: joi.string(),
+});
+
 export default {
     create,
     confirm,
+    available,
 };
