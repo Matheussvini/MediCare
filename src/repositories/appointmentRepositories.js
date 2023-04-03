@@ -295,9 +295,41 @@ async function deleteOlderThanToday(brNow) {
       date < $1 OR
       (date = $1 AND end_time < $2)
   `;
-  const values = [brNow.format('YYYY-MM-DD'), brNow.format('HH:mm:ss')];
+  const values = [brNow.format("YYYY-MM-DD"), brNow.format("HH:mm:ss")];
 
   await connectionDB.query(query, values);
+}
+
+async function findPerformed({ user, brNow }) {
+  return await connectionDB.query(
+    `
+      SELECT
+        s.id,
+        s.available_id,
+        s.doctor_id,
+        u.name AS doctor_name,
+        s.patient_id,
+        u2.name AS patient_name,
+        s.time,
+        s.status,
+        d.speciality,
+        a.fu,
+        a.city,
+        a.district,
+        a.date
+      FROM schedule_appointments s
+      JOIN available_appointments a ON a.id = s.available_id
+      JOIN doctors d ON d.id = s.doctor_id
+      JOIN patients p ON p.id = s.patient_id
+      JOIN users u ON u.id = d.user_id
+      JOIN users u2 ON u2.id = p.user_id
+      WHERE (u.id = $1 OR u2.id = $1)
+      AND s.status = 'confirmed'
+      AND a.date < $2
+      ORDER BY a.date, a.start_time ASC
+    `,
+    [user.id, brNow.format("YYYY-MM-DD")]
+  );
 }
 
 export default {
@@ -313,4 +345,5 @@ export default {
   findSchedulesByAvailableIdAndPatientId,
   findSchedules,
   deleteOlderThanToday,
+  findPerformed,
 };

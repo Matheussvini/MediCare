@@ -113,10 +113,24 @@ async function mySchedules(req, res, next) {
   }
 }
 
+async function performed(req, res, next) {
+  const { user } = res.locals;
+  try {
+   
+
+    const performed = await appointmentServices.performed(user);
+
+    return res.status(200).send({ performed });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export default {
   create,
   confirm,
   available,
   marking,
   mySchedules,
+  performed,
 };

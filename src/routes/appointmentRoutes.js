@@ -40,4 +40,10 @@ appointmentRoutes.get(
     appointmentControllers.mySchedules
 );
 
+appointmentRoutes.get(
+    "/performed",
+    authMiddleware.authValidation,
+    appointmentControllers.performed
+);
+
 export default appointmentRoutes;

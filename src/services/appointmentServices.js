@@ -117,7 +117,7 @@ async function available({
   }
 
   const now = momentTz().utc();
-  const brTimezone = 'America/Sao_Paulo';
+  const brTimezone = "America/Sao_Paulo";
   const brNow = now.tz(brTimezone);
 
   await appointmentRepositories.deleteOlderThanToday(brNow);
@@ -243,7 +243,19 @@ async function mySchedules(params, user) {
   }
 }
 
+async function performed(user) {
+  const now = momentTz().utc();
+  const brTimezone = "America/Sao_Paulo";
+  const brNow = now.tz(brTimezone);
 
+  const { rows: performed } = await appointmentRepositories.findPerformed({
+    user,
+    brNow,
+  });
+  console.log("performed", performed);
+
+  return performed;
+}
 
 export default {
   create,
@@ -251,4 +263,5 @@ export default {
   available,
   marking,
   mySchedules,
+  performed,
 };
