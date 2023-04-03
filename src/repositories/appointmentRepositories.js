@@ -74,7 +74,6 @@ async function findAvailable({
   district,
   speciality,
 }) {
-
   let query = `
         SELECT
           a.id,
@@ -125,17 +124,14 @@ async function findAvailable({
   }
 
   query += `
-    ORDER BY a.date, a.start_time ASC`
+    ORDER BY a.date, a.start_time ASC`;
 
   const { rows } = await connectionDB.query(query, params);
 
   return rows;
 }
 
-async function findByAvailableIdAndTime({
-  available_id,
-  time,
-}) {
+async function findByAvailableIdAndTime({ available_id, time }) {
   return await connectionDB.query(
     `
         SELECT *
@@ -160,7 +156,6 @@ async function findScheduleByTime({ available_id, time }) {
 }
 
 async function marking({ available_id, doctor_id, patient_id, time }) {
-
   await connectionDB.query(
     `
         INSERT INTO schedule_appointments (available_id, doctor_id, patient_id, time)
@@ -181,7 +176,10 @@ async function findSchedulesByAvailableId(available_id) {
   );
 }
 
-async function findSchedulesByAvailableIdAndPatientId({available_id, patient_id}) {
+async function findSchedulesByAvailableIdAndPatientId({
+  available_id,
+  patient_id,
+}) {
   return await connectionDB.query(
     `
         SELECT *
@@ -191,6 +189,103 @@ async function findSchedulesByAvailableIdAndPatientId({available_id, patient_id}
     `,
     [available_id, patient_id]
   );
+}
+
+async function findSchedules(params, user) {
+  const {
+    doctor_name,
+    doctor_id,
+    patient_name,
+    patient_id,
+    speciality,
+    date,
+    fu,
+    city,
+    district,
+    status,
+  } = params;
+
+  let query = `
+        SELECT
+          s.id,
+          s.available_id,
+          s.doctor_id,
+          s.patient_id,
+          s.time,
+          s.status,
+          u.name AS doctor_name,
+          u2.name AS patient_name,
+          d.speciality,
+          a.fu,
+          a.city,
+          a.district,
+          a.date
+        FROM schedule_appointments s
+        JOIN available_appointments a ON a.id = s.available_id
+        JOIN doctors d ON d.id = s.doctor_id
+        JOIN patients p ON p.id = s.patient_id
+        JOIN users u ON u.id = d.user_id
+        JOIN users u2 ON u2.id = p.user_id
+        WHERE (u.id = $1 OR u2.id = $1)
+    `;
+  const arrDependencies = [user.id];
+
+  if (fu) {
+    arrDependencies.push(fu);
+    query += ` AND a.fu ILIKE '%' || $${arrDependencies.length} || '%'`;
+  }
+
+  if (city) {
+    arrDependencies.push(city);
+    query += ` AND a.city ILIKE '%' || $${arrDependencies.length} || '%'`;
+  }
+
+  if (district) {
+    arrDependencies.push(district);
+    query += ` AND a.district ILIKE '%' || $${arrDependencies.length} || '%'`;
+  }
+
+  if (date) {
+    arrDependencies.push(date);
+    query += ` AND a.date = $${arrDependencies.length}`;
+  }
+
+  if (doctor_name) {
+    arrDependencies.push(doctor_name);
+    query += ` AND u.name ILIKE '%' || $${arrDependencies.length} || '%'`;
+  }
+
+  if (doctor_id) {
+    arrDependencies.push(doctor_id);
+    query += ` AND s.doctor_id = $${arrDependencies.length}`;
+  }
+
+  if (patient_name) {
+    arrDependencies.push(patient_name);
+    query += ` AND u2.name ILIKE '%' || $${arrDependencies.length} || '%'`;
+  }
+
+  if (patient_id) {
+    arrDependencies.push(patient_id);
+    query += ` AND s.patient_id = $${arrDependencies.length}`;
+  }
+
+  if (speciality) {
+    arrDependencies.push(speciality);
+    query += ` AND d.speciality ILIKE '%' || $${arrDependencies.length} || '%'`;
+  }
+
+  if (status) {
+    arrDependencies.push(status);
+    query += ` AND s.status = $${arrDependencies.length}`;
+  }
+
+  query += `
+    ORDER BY a.date, a.start_time ASC`;
+
+  const { rows } = await connectionDB.query(query, arrDependencies);
+
+  return rows;
 }
 
 export default {
@@ -204,4 +299,5 @@ export default {
   marking,
   findSchedulesByAvailableId,
   findSchedulesByAvailableIdAndPatientId,
+  findSchedules
 };

@@ -101,9 +101,22 @@ async function marking(req, res, next) {
   }
 }
 
+async function mySchedules(req, res, next) {
+  const { user } = res.locals;
+  const params = req.query;
+  try {
+    const my_schedules = await appointmentServices.mySchedules(params, user);
+
+    return res.status(200).send({ my_schedules });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export default {
   create,
   confirm,
   available,
   marking,
+  mySchedules,
 };

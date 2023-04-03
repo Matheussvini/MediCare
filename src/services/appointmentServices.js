@@ -52,8 +52,7 @@ async function create({
   });
   if (rows.length) {
     throw errors.conflictError(
-      
-        "Appointment already exists in this time interval for this doctor",
+      "Appointment already exists in this time interval for this doctor"
     );
   }
 
@@ -187,13 +186,18 @@ async function marking({ available_id, time, user }) {
   });
   if (search.rowCount) {
     throw errors.conflictError(
-      `Appointment already exists in this time ${time} for this doctor`,
+      `Appointment already exists in this time ${time} for this doctor`
     );
   }
 
-  const { rows: schedules } = await appointmentRepositories.findSchedulesByAvailableIdAndPatientId( { available_id, patient_id: patient.id } );
+  const { rows: schedules } =
+    await appointmentRepositories.findSchedulesByAvailableIdAndPatientId({
+      available_id,
+      patient_id: patient.id,
+    });
   if (schedules.length > 1) {
-    throw errors.conflictError(`Pacient with id ${patient.id} already have an appointment with this doctor on this day`,
+    throw errors.conflictError(
+      `Pacient with id ${patient.id} already have an appointment with this doctor on this day`
     );
   }
 
@@ -205,9 +209,38 @@ async function marking({ available_id, time, user }) {
   });
 }
 
+async function mySchedules(params, user) {
+  if (user.type === "doctor") {
+    const {
+      rows: [doctor],
+    } = await userRepositories.findDoctorByUserId(user.id);
+    params.doctor_id = doctor.id;
+
+    const schedules = await appointmentRepositories.findSchedules(params, user);
+    if (!schedules) {
+      throw errors.notFoundError(`Schedules with this params not found`);
+    }
+    return schedules;
+  }
+
+  if (user.type === "patient") {
+    const {
+      rows: [patient],
+    } = await userRepositories.findPatientByUserId(user.id);
+    params.patient_id = patient.id;
+
+    const schedules = await appointmentRepositories.findSchedules(params, user);
+    if (!schedules) {
+      throw errors.notFoundError(`Schedules with this params not found`);
+    }
+    return schedules;
+  }
+}
+
 export default {
   create,
   confirm,
   available,
   marking,
+  mySchedules,
 };

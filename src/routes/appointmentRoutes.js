@@ -34,9 +34,10 @@ appointmentRoutes.post(
     appointmentControllers.marking
 );
 
-// appointmentRoutes.get(
-
-// )
-
+appointmentRoutes.get(
+    "/my-schedules",
+    authMiddleware.authValidation,
+    appointmentControllers.mySchedules
+);
 
 export default appointmentRoutes;
