@@ -159,7 +159,7 @@ async function findScheduleByTime({ available_id, time }) {
   );
 }
 
-async function schedule({ available_id, doctor_id, patient_id, time }) {
+async function marking({ available_id, doctor_id, patient_id, time }) {
 
   await connectionDB.query(
     `
@@ -201,7 +201,7 @@ export default {
   findAvailable,
   findByAvailableIdAndTime,
   findScheduleByTime,
-  schedule,
+  marking,
   findSchedulesByAvailableId,
   findSchedulesByAvailableIdAndPatientId,
 };

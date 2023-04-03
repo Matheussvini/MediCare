@@ -21,7 +21,7 @@ const available = joi.object({
     district: joi.string(),
 });
 
-const schedule = joi.object({
+const marking = joi.object({
     available_id: joi.number().required(),
     time: joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/).required(),
 });
@@ -30,5 +30,5 @@ export default {
     create,
     confirm,
     available,
-    schedule,
+    marking,
 };

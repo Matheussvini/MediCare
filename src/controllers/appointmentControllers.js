@@ -81,7 +81,7 @@ async function available(req, res, next) {
   }
 }
 
-async function schedule(req, res, next) {
+async function marking(req, res, next) {
   const { user } = res.locals;
   const { available_id, time } = req.body;
   try {
@@ -91,7 +91,7 @@ async function schedule(req, res, next) {
       });
     }
 
-    await appointmentServices.schedule({ available_id, time, user });
+    await appointmentServices.marking({ available_id, time, user });
 
     return res
       .status(201)
@@ -105,5 +105,5 @@ export default {
   create,
   confirm,
   available,
-  schedule,
+  marking,
 };

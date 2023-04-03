@@ -164,7 +164,7 @@ async function available({
   return result;
 }
 
-async function schedule({ available_id, time, user }) {
+async function marking({ available_id, time, user }) {
   const {
     rows: [available],
     rowCount,
@@ -197,7 +197,7 @@ async function schedule({ available_id, time, user }) {
     );
   }
 
-  await appointmentRepositories.schedule({
+  await appointmentRepositories.marking({
     available_id,
     doctor_id: available.doctor_id,
     patient_id: patient.id,
@@ -209,5 +209,5 @@ export default {
   create,
   confirm,
   available,
-  schedule,
+  marking,
 };
