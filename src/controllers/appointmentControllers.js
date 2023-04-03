@@ -83,7 +83,7 @@ async function available(req, res, next) {
 
 async function schedule(req, res, next) {
   const { user } = res.locals;
-  const { available_id, patient_id, time } = req.body;
+  const { available_id, time } = req.body;
   try {
     if (user.type !== "patient") {
       throw errors.invalidCredentialsError({
@@ -91,7 +91,7 @@ async function schedule(req, res, next) {
       });
     }
 
-    await appointmentServices.schedule({ available_id, patient_id, time });
+    await appointmentServices.schedule({ available_id, time, user });
 
     return res
       .status(201)

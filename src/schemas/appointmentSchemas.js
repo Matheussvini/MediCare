@@ -23,7 +23,6 @@ const available = joi.object({
 
 const schedule = joi.object({
     available_id: joi.number().required(),
-    patient_id: joi.number().required(),
     time: joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/).required(),
 });
 
