@@ -97,6 +97,15 @@ async function findDoctorIdsByDoctorName(doctor_name) {
   );
 }
 
+async function findByDoctorId(doctor_id) {
+  return await connectionDB.query(
+    `
+        SELECT * FROM doctors WHERE id = $1
+    `,
+    [doctor_id]
+  );
+}
+
 export default {
   signup,
   findByEmail,
@@ -107,5 +116,6 @@ export default {
   findUserById,
   findDoctorByUserId,
   findPatientByUserId,
-  findDoctorIdsByDoctorName
+  findDoctorIdsByDoctorName,
+  findByDoctorId,
 };
