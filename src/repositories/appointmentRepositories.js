@@ -288,6 +288,18 @@ async function findSchedules(params, user) {
   return rows;
 }
 
+async function deleteOlderThanToday(brNow) {
+  const query = `
+    DELETE FROM available_appointments
+    WHERE
+      date < $1 OR
+      (date = $1 AND end_time < $2)
+  `;
+  const values = [brNow.format('YYYY-MM-DD'), brNow.format('HH:mm:ss')];
+
+  await connectionDB.query(query, values);
+}
+
 export default {
   create,
   findByDoctorIdDateAndTime,
@@ -299,5 +311,6 @@ export default {
   marking,
   findSchedulesByAvailableId,
   findSchedulesByAvailableIdAndPatientId,
-  findSchedules
+  findSchedules,
+  deleteOlderThanToday,
 };

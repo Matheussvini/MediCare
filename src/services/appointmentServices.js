@@ -1,6 +1,7 @@
 import errors from "../errors/index.js";
 import appointmentRepositories from "../repositories/appointmentRepositories.js";
 import moment from "moment";
+import momentTz from "moment-timezone";
 import userRepositories from "../repositories/userRepositories.js";
 
 async function create({
@@ -110,11 +111,16 @@ async function available({
 }) {
   if (date) {
     const appointmentDate = moment(date, "YYYY-MM-DD");
-
     if (!appointmentDate.isValid()) {
       throw errors.conflictError({ message: "Invalid date" });
     }
   }
+
+  const now = momentTz().utc();
+  const brTimezone = 'America/Sao_Paulo';
+  const brNow = now.tz(brTimezone);
+
+  await appointmentRepositories.deleteOlderThanToday(brNow);
 
   const search = await appointmentRepositories.findAvailable({
     doctor_name,
@@ -236,6 +242,8 @@ async function mySchedules(params, user) {
     return schedules;
   }
 }
+
+
 
 export default {
   create,
