@@ -47,40 +47,6 @@ function validationError(message) {
   };
 }
 
-function doctorNotFound(doctor_id) {
-  return {
-    name: "DoctorNotFoundError",
-    message: `Doctor with id ${doctor_id} not found`,
-  };
-}
-
-function patientNotFound(patient_id) {
-  return {
-    name: "PatientNotFoundError",
-    message: `Patient with id ${patient_id} not found`,
-  };
-}
-
-function appointmentNotFound(appointment_id) {
-  return {
-    name: "AppointmentNotFoundError",
-    message: `Appointment with id ${appointment_id} not found`,
-  };
-}
-
-function invalidState(state) {
-  return {
-    name: "InvalidStateError",
-    message: `State ${state} is invalid`,
-  };
-}
-
-function invalidCity(city) {
-  return {
-    name: "InvalidCityError",
-    message: `City ${city} is invalid`,
-  };
-}
 
 export default {
   duplicatedError,
@@ -90,9 +56,4 @@ export default {
   notFoundError,
   unauthorizedError,
   validationError,
-  doctorNotFound,
-  patientNotFound,
-  appointmentNotFound,
-  invalidState,
-  invalidCity,
 };
